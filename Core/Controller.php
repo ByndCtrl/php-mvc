@@ -1,23 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core;
 
-abstract class Controller 
+use Core\Util\Session;
+
+/**
+ * Class Controller
+ * @package Core
+ */
+abstract class Controller
 {
-    public function model($model)
+    protected ?Session $session = null;
+
+    public function __construct()
     {
-        require '../App/Models/' . $model . '.php';
+        $this->session = new Session();
     }
 
-    public function view($view)
+    /**
+     * @param string $location
+     */
+    protected function redirect(string $location)
     {
-        if(file_exists('../App/Views/' . $view . '.view.php'))
-        {
-            require_once '../App/Views/' . $view . '.view.php';
-        }
-        else
-        {
-            die('No view found.');
-        }
+        $location = strtolower($location);
+
+        header('Location: ' . URL_ROOT . $location);
+        exit;
     }
 }

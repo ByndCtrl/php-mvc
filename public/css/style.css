@@ -1,0 +1,153 @@
+html {
+    font-family: Roboto, sans-serif;
+}
+
+body {
+    margin: 0;
+    background-color: #f4f4f4;
+}
+
+a {
+    color: #000;
+}
+
+/* Nav */
+.nav {
+    background-color: #fff;
+    box-shadow: 1px 1px 10px 0 rgba(0, 0, 0, .6);
+    position: fixed;
+    width: 100%;
+    z-index: 3;
+}
+
+.nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.nav li a {
+    display: block;
+    padding: 20px 20px;
+    border-right: 2px solid #333333;
+    text-decoration: none;
+}
+
+.nav li a:hover,
+.nav .menu-btn:hover {
+    background-color: #333333;
+    color: #f4f4f4;
+}
+
+.nav .logo {
+    font-family: "Roboto Thin", sans-serif;
+    display: block;
+    float: left;
+    font-size: 2em;
+    padding: 10px 20px;
+    text-decoration: none;
+}
+
+/* Menu */
+.nav .menu {
+    display: flex;
+    justify-content: center;
+    clear: both;
+    max-height: 0;
+    transition: max-height .2s ease-out;
+}
+
+/* Hamburger Menu Icon */
+.nav .menu-icon {
+    cursor: pointer;
+    display: inline-block;
+    float: right;
+    padding: 28px 20px;
+    position: relative;
+    user-select: none;
+}
+
+.nav .menu-icon .nav-icon {
+    background: #333;
+    display: block;
+    height: 2px;
+    position: relative;
+    transition: background .2s ease-out;
+    width: 18px;
+}
+
+.nav .menu-icon .nav-icon:before,
+.nav .menu-icon .nav-icon:after {
+    background: #333;
+    content: '';
+    display: block;
+    height: 100%;
+    position: absolute;
+    transition: all .2s ease-out;
+    width: 100%;
+}
+
+.nav .menu-icon .nav-icon:before {
+    top: 5px;
+}
+
+.nav .menu-icon .nav-icon:after {
+    top: -5px;
+}
+
+/* Hamburger Menu Button */
+.nav .menu-btn {
+    display: none;
+}
+
+.nav .menu-btn:checked ~ .menu {
+    max-height: 240px;
+}
+
+.nav .menu-btn:checked ~ .menu-icon .nav-icon {
+    background: transparent;
+}
+
+.nav .menu-btn:checked ~ .menu-icon .nav-icon:before {
+    transform: rotate(-45deg);
+}
+
+.nav .menu-btn:checked ~ .menu-icon .nav-icon:after {
+    transform: rotate(45deg);
+}
+
+.nav .menu-btn:checked ~ .menu-icon:not(.steps) .nav-icon:before,
+.nav .menu-btn:checked ~ .menu-icon:not(.steps) .nav-icon:after {
+    top: 0;
+}
+
+/* 48em = 768px */
+@media (min-width: 48em) {
+    .nav li {
+        float: left;
+    }
+
+    .nav li a {
+        padding: 20px 30px;
+    }
+
+    .nav .menu {
+        clear: none;
+        float: right;
+        max-height: none;
+    }
+
+    .nav .menu-icon {
+        display: none;
+    }
+}
+
+.centered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
+}

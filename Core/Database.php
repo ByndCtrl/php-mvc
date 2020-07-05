@@ -1,111 +1,90 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core;
 
 use PDO;
-use PDOException;
+use PDOStatement;
+use BadMethodCallException;
 use App\Credentials;
 
-class Database 
+/**
+ * Class Database
+ * @package Core
+ */
+class Database
 {
-    private $dbh;
-    private $stmt;
-    private $error;
+    protected static ?Database $instance = null;
+    protected ?PDO $pdo = null;
+
+    final function __construct()
+    {
+        if (self::$instance === null)
+        {
+            $dsn = 'mysql:host=' . Credentials::DB_HOST . ';dbname=' . Credentials::DB_NAME;
+
+            $opt = array(
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => FALSE,
+                PDO::ATTR_PERSISTENT => TRUE
+            );
+
+            $this->pdo = new PDO($dsn, Credentials::DB_USER, Credentials::DB_PASSWORD, $opt);
+        }
+    }
+
+    final function __clone()
+    {
+    }
 
     /**
-     * Initialize PDO connection.
-     * Set the DBH as the new instance of PDO.
+     * @return Database
      */
-    public function __construct()
+    public static function instance(): Database
     {
-        $dsn = 'mysql:host=' . Credentials::DB_HOST . ';dbname=' . Credentials::DB_NAME;
+        if (self::$instance === null)
+        {
+            self::$instance = new self;
+        }
 
-        $options = array(
-            PDO::ATTR_PERSISTENT => true,
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        );
-        
-        try 
+        return self::$instance;
+    }
+
+    /**
+     * @param string $method
+     * @param array $args
+     *
+     * @return PDOStatement
+     */
+    public function __call(string $method = '', array $args = []): PDOStatement
+    {
+        if (is_callable(array($this->pdo, $method)))
         {
-            $this->dbh = new PDO($dsn, Credentials::DB_USER, Credentials::DB_PASSWORD, $options);
-        } 
-        catch (PDOException $e) 
+            return call_user_func_array(array($this->pdo, $method), $args);
+        }
+        else
         {
-            $this->error = $e->getMessage();
-            echo $this->error;
+            throw new BadMethodCallException('Undefined method Database::' . $method);
         }
     }
 
     /**
-     * Prepare statement.
+     * @param string $sql
+     * @param array $args
+     *
+     * @return PDOStatement
      */
-    public function query($sql)
+    public function run(string $sql = '', array $args = []): PDOStatement
     {
-        $this->stmt = $this->dbh->prepare($sql);
-    }
-
-    /**
-     * Bind variables to  proper types.
-     * Types allowed: integer, string, bool and null.
-     */
-    public function bind($param, $value, $type = null)
-    {
-        if (is_null($type)) 
+        if (!$args)
         {
-            switch (1) 
-            {
-                case is_int($value):
-                    $type = PDO::PARAM_INT;
-                    break;
-                
-                case is_bool($value):
-                    $type = PDO::PARAM_BOOL;
-                    break;
-
-                case is_null($value):
-                    $type = PDO::PARAM_NULL;
-                    break;
-
-                default:
-                    $type = PDO::PARAM_STR;
-                    
-            }
+            return $this->query($sql);
         }
 
-        $this->stmt->bindValue($param, $value, $type);
-    }
-
-    /**
-     * Execute prepared statement.
-     */
-    private function execute()
-    {
-        return $this->stmt->execute();
-    }
-
-    /**
-     * Get a set of rows.
-     */
-    public function getAll()
-    {
-        $this->execute();
-        return $this->stmt->fetchAll(PDO::FETCH_OBJ);
-    }
-
-    /**
-    * Get a single row.
-    */
-    public function getSingle()
-    {
-        $this->execute();
-        return $this->stmt->fetch(PDO::FETCH_OBJ);
-    }
-
-    /**
-     * Get the row count of the statement.
-     */
-    public function rowCount()
-    {
-        return $this->statement->rowCount();
+        $stmt = self::instance()->prepare($sql);
+        $stmt->execute($args);
+        return $stmt;
     }
 }

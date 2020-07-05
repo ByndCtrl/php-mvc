@@ -1,8 +1,13 @@
 <?php
 
-use Core\Router;
-
 require_once '../App/Init.php';
 
-$router = new Router;
+use Core\Request;
+use Core\Route;
+use Core\Router;
 
+$request = new Request();
+$route = new Route();
+$router = new Router($route, $request);
+
+$router->direct($request->getRequestMethod(), $request->getUrl());
